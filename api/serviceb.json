@@ -1,0 +1,18 @@
+[
+  {
+    "pair": "USD-EUR",
+    "rate": 0.95
+  },
+  {
+    "pair": "USD-GBP",
+    "rate": 0.77
+  },
+  {
+    "pair": "EUR-GBP",
+    "rate": 0.90
+  },
+  {
+    "pair": "USD-JPY",
+    "rate": 111.31
+  }
+]

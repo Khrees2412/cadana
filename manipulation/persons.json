@@ -1,0 +1,84 @@
+{
+  "data": [
+    {
+      "id": "X",
+      "personName": "Cadanaut X",
+      "salary": {
+        "value": 10,
+        "currency": "USD"
+      }
+    },
+    {
+      "id": "Y",
+      "personName": "Cadanaut Y",
+      "salary": {
+        "value": 20,
+        "currency": "USD"
+      }
+    },
+    {
+      "id": "Z",
+      "personName": "Cadanaut Z",
+      "salary": {
+        "value": 30,
+        "currency": "USD"
+      }
+    },
+    {
+      "id": "A",
+      "personName": "Cadanaut A",
+      "salary": {
+        "value": 40,
+        "currency": "USD"
+      }
+    },
+    {
+      "id": "B",
+      "personName": "Cadanaut B",
+      "salary": {
+        "value": 50,
+        "currency": "USD"
+      }
+    },
+    {
+      "id": "C",
+      "personName": "Cadanaut C",
+      "salary": {
+        "value": 60,
+        "currency": "EUR"
+      }
+    },
+    {
+      "id": "D",
+      "personName": "Cadanaut D",
+      "salary": {
+        "value": 70,
+        "currency": "USD"
+      }
+    },
+    {
+      "id": "E",
+      "personName": "Cadanaut E",
+      "salary": {
+        "value": 80,
+        "currency": "GBP"
+      }
+    },
+    {
+      "id": "F",
+      "personName": "Cadanaut F",
+      "salary": {
+        "value": 90,
+        "currency": "USD"
+      }
+    },
+    {
+      "id": "G",
+      "personName": "Cadanaut G",
+      "salary": {
+        "value": 100,
+        "currency": "USD"
+      }
+    }
+  ]
+}
