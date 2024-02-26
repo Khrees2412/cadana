@@ -1,4 +1,4 @@
-package api
+package taskone
 
 import (
 	"encoding/json"
@@ -17,7 +17,7 @@ func Start() {
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World!")
 	})
-	app.Post("/exchange-rate", handler)
+	app.Get("/v1/exchange-rate", handler)
 
 	port := "5001"
 	if err := app.Listen(":" + port); err != nil && err != http.ErrServerClosed {
@@ -98,19 +98,11 @@ func exchangeRateAPITwo(pair string, apiKey string) *float64 {
 }
 
 func handler(ctx *fiber.Ctx) error {
-	var body *CurrencyPairRequest
-
-	if err := ctx.BodyParser(&body); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": err.Error(),
-		})
-	}
-	errors := util.ValidateStruct(body)
-	if errors != nil {
+	currencyPair := ctx.Query("currency_pair")
+	if currencyPair == "" {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"Success": false,
-			"Message": "Error while validating",
-			"Data":    errors,
+			"Message": "Currency pair is required",
 		})
 	}
 
@@ -122,10 +114,10 @@ func handler(ctx *fiber.Ctx) error {
 
 	// Start Goroutines to execute both functions concurrently
 	go func() {
-		result1 <- exchangeRateAPIOne(body.CurrencyPair, apiKeys.ApiKeyOne)
+		result1 <- exchangeRateAPIOne(currencyPair, apiKeys.ApiKeyOne)
 	}()
 	go func() {
-		result2 <- exchangeRateAPITwo(body.CurrencyPair, apiKeys.ApiKeyTwo)
+		result2 <- exchangeRateAPITwo(currencyPair, apiKeys.ApiKeyTwo)
 	}()
 
 	var res *float64
@@ -140,14 +132,14 @@ func handler(ctx *fiber.Ctx) error {
 
 	if res == nil {
 		return ctx.JSON(fiber.Map{
-			"message":         "Currency pair not found",
-			body.CurrencyPair: nil,
+			"message":    "Currency pair not found",
+			currencyPair: nil,
 		})
 	}
 
 	return ctx.JSON(
 		fiber.Map{
-			body.CurrencyPair: *res,
+			currencyPair: *res,
 		},
 	)
 }

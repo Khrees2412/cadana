@@ -1,4 +1,4 @@
-package api
+package taskone
 
 import (
 	"github.com/gofiber/fiber/v2"
@@ -10,7 +10,6 @@ import (
 )
 
 func TestGetExchangeRate(t *testing.T) {
-
 	// Mock API_KEY_ONE and API_KEY_TWO for testing
 	os.Setenv("API_KEY_ONE", "mock_api_key_one")
 	os.Setenv("API_KEY_TWO", "mock_api_key_two")
@@ -21,19 +20,17 @@ func TestGetExchangeRate(t *testing.T) {
 		expectedCode int
 	}{
 		{
-			description:  "This fetches exchange rate",
+			description:  "This fetches an exchange rate",
 			route:        "/exchange-rate",
 			expectedCode: 200,
 		},
 	}
 
-	// Define Fiber app.
 	app := fiber.New()
 
-	// Iterate through test single test cases
 	for _, test := range tests {
 		// Create a new http request with the route from the test case
-		req := httptest.NewRequest("POST", test.route, strings.NewReader(`{"currency_pair":"USD-EUR"}`))
+		req := httptest.NewRequest("GET", "/v1"+test.route, strings.NewReader(`{"currency_pair":"USD-EUR"}`))
 
 		// Perform the request plain with the app,
 		// the second argument is a request latency

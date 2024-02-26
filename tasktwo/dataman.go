@@ -1,4 +1,4 @@
-package manipulation
+package tasktwo
 
 import (
 	"encoding/json"
@@ -69,13 +69,6 @@ const (
 	USD Currency = "USD"
 )
 
-/*
-   Sort the data array of Person objects by salary in ascending and descending order.
-   Group Person objects by salary currency into hash maps.
-   Filter Person objects by salary criteria in USD. Inject your API logic above as a dependecy
-   to obtain the exchange rates to be able to filter all the different currencies in USD.
-*/
-
 type IPerson interface {
 	SortSalaryAsc() []Person
 	SortSalaryDesc() []Person
@@ -83,7 +76,7 @@ type IPerson interface {
 	GroupCurrency() map[Currency][]Person
 }
 
-func main() {
+func Start() {
 	jsonFile, err := os.Open("persons.json")
 	if err != nil {
 		fmt.Println(err)
