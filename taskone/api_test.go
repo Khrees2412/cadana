@@ -3,17 +3,15 @@ package taskone
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
+	"log"
 	"net/http/httptest"
 	"os"
+	"reflect"
 	"strings"
 	"testing"
 )
 
 func TestGetExchangeRate(t *testing.T) {
-	// Mock API_KEY_ONE and API_KEY_TWO for testing
-	os.Setenv("API_KEY_ONE", "mock_api_key_one")
-	os.Setenv("API_KEY_TWO", "mock_api_key_two")
-
 	tests := []struct {
 		description  string
 		route        string
@@ -46,4 +44,25 @@ func TestGetExchangeRate(t *testing.T) {
 		assert.Equalf(t, test.expectedCode, resp.StatusCode, test.description)
 	}
 
+}
+func TestExchangeRateAPIOne(t *testing.T) {
+	key := os.Getenv("API_KEY_ONE")
+	t.Run("valid api key and pair", func(t *testing.T) {
+		rate := exchangeRateAPIOne("USD-EUR", key)
+		log.Println(rate)
+		assert.NotNil(t, rate)
+		value := 0.85
+		valueType := reflect.TypeOf(value)
+		assert.Equal(t, valueType, *rate)
+	})
+
+	t.Run("invalid api key", func(t *testing.T) {
+		rate := exchangeRateAPIOne("USD-EUR", "wrong_key")
+		assert.Nil(t, rate)
+	})
+
+	t.Run("pair not found", func(t *testing.T) {
+		rate := exchangeRateAPIOne("USD-XYZ", key)
+		assert.Nil(t, rate)
+	})
 }
