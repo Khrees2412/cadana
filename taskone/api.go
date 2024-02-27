@@ -1,6 +1,7 @@
 package taskone
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
@@ -9,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 func Start() {
@@ -17,11 +19,19 @@ func Start() {
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World!")
 	})
-	app.Get("/v1/exchange-rate", handler)
+	app.Get("/v1/exchange-rate", secretMiddleware(), handler)
 
 	port := "5001"
 	if err := app.Listen(":" + port); err != nil && err != http.ErrServerClosed {
 		log.Fatal(fmt.Sprintf("listen: %s\n", err))
+	}
+}
+
+func secretMiddleware() func(*fiber.Ctx) error {
+	return func(c *fiber.Ctx) error {
+		c.Set("secret_key_one", util.GetSecret().ApiKeyOne)
+		c.Set("secret_key_two", util.GetSecret().ApiKeyTwo)
+		return c.Next()
 	}
 }
 
@@ -35,25 +45,26 @@ type CurrencyPairRequest struct {
 
 func exchangeRateAPIOne(pair string, apiKey string) *float64 {
 	if apiKey != os.Getenv("API_KEY_ONE") {
+		log.Fatalf("invalid api key supplied")
 		return nil
 	}
-	jsonFile, err := os.Open("api/servicea.json")
+	jsonFile, err := os.Open("taskone/servicea.json")
 	if err != nil {
-		fmt.Println(err)
+		log.Fatalf("unable to open json file: %v", err)
 		return nil
 	}
 	defer jsonFile.Close()
 
 	byteValue, e := ioutil.ReadAll(jsonFile)
 	if e != nil {
-		fmt.Println(e)
+		log.Fatalf("unable to read json file: %v", e)
 		return nil
 	}
 
 	var quotes []Quotes
 	err = json.Unmarshal(byteValue, &quotes)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatalf("unable to unmarshal json file: %v", err)
 		return nil
 	}
 
@@ -67,25 +78,26 @@ func exchangeRateAPIOne(pair string, apiKey string) *float64 {
 
 func exchangeRateAPITwo(pair string, apiKey string) *float64 {
 	if apiKey != os.Getenv("API_KEY_TWO") {
+		log.Fatalf("invalid api key supplied")
 		return nil
 	}
-	jsonFile, err := os.Open("api/serviceb.json")
+	jsonFile, err := os.Open("taskone/serviceb.json")
 	if err != nil {
-		fmt.Println(err)
+		log.Fatalf("unable to open json file: %v", err)
 		return nil
 	}
 	defer jsonFile.Close()
 
 	byteValue, e := ioutil.ReadAll(jsonFile)
 	if e != nil {
-		fmt.Println(e)
+		log.Fatalf("unable to read json file: %v", e)
 		return nil
 	}
 
 	var quotes []Quotes
 	err = json.Unmarshal(byteValue, &quotes)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatalf("unable to unmarshal json file: %v", err)
 		return nil
 	}
 
@@ -106,7 +118,11 @@ func handler(ctx *fiber.Ctx) error {
 		})
 	}
 
-	apiKeys := util.GetSecrets()
+	apiKeyOne := ctx.GetRespHeader("secret_key_one")
+	apiKeyTwo := ctx.GetRespHeader("secret_key_two")
+
+	appCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
 	// Channels to receive results from the functions
 	result1 := make(chan *float64)
@@ -114,10 +130,10 @@ func handler(ctx *fiber.Ctx) error {
 
 	// Start Goroutines to execute both functions concurrently
 	go func() {
-		result1 <- exchangeRateAPIOne(currencyPair, apiKeys.ApiKeyOne)
+		result1 <- exchangeRateAPIOne(currencyPair, apiKeyOne)
 	}()
 	go func() {
-		result2 <- exchangeRateAPITwo(currencyPair, apiKeys.ApiKeyTwo)
+		result2 <- exchangeRateAPITwo(currencyPair, apiKeyTwo)
 	}()
 
 	var res *float64
@@ -125,16 +141,21 @@ func handler(ctx *fiber.Ctx) error {
 	// Select the first result that is available
 	select {
 	case res = <-result1:
+		if res == nil {
+			return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"success": false,
+			})
+		}
 		fmt.Println("Result from API one", *res)
 	case res = <-result2:
+		if res == nil {
+			return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"success": false,
+			})
+		}
 		fmt.Println("Result from API two:", *res)
-	}
-
-	if res == nil {
-		return ctx.JSON(fiber.Map{
-			"message":    "Currency pair not found",
-			currencyPair: nil,
-		})
+	case <-appCtx.Done():
+		fmt.Println("Context cancelled")
 	}
 
 	return ctx.JSON(

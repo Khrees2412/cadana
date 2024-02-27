@@ -2,10 +2,30 @@ package tasktwo
 
 import (
 	"encoding/json"
-	"fmt"
+	"github.com/khrees2412/cadana/util"
 	"io/ioutil"
+	"log"
 	"os"
 )
+
+func Start() {
+	jsonFile, err := os.Open("persons.json")
+	if err != nil {
+		log.Println(err)
+	}
+	defer jsonFile.Close()
+
+	byteValue, e := ioutil.ReadAll(jsonFile)
+	if e != nil {
+		log.Println(err)
+	}
+	persons, err := UnmarshalPersons(byteValue)
+	if err != nil {
+		log.Println(err)
+	}
+	salaryAsc := persons.SortSalaryAsc()
+	util.PrettyPrint(salaryAsc)
+}
 
 func UnmarshalPersons(data []byte) (Persons, error) {
 	var r Persons
@@ -13,47 +33,21 @@ func UnmarshalPersons(data []byte) (Persons, error) {
 	return r, err
 }
 
-func (r *Persons) Marshal() ([]byte, error) {
-	return json.Marshal(r)
-}
-
 type Persons struct {
 	Data []Person `json:"data"`
+}
+
+type IPerson interface {
+	SortSalaryAsc() []Person
+	SortSalaryDesc() []Person
+	FilterSalaryInUSD() []Person
+	GroupCurrency() map[Currency][]Person
 }
 
 type Person struct {
 	ID         string `json:"id"`
 	PersonName string `json:"personName"`
 	Salary     Salary `json:"salary"`
-}
-
-func (r *Persons) GetNames() []string {
-	var names []string
-	for _, v := range r.Data {
-		names = append(names, v.PersonName)
-	}
-	return names
-}
-func (r *Persons) GetIDs() []string {
-	var ids []string
-	for _, v := range r.Data {
-		ids = append(ids, v.ID)
-	}
-	return ids
-}
-func (r *Persons) GetCurrencies() []Currency {
-	var currencies []Currency
-	for _, v := range r.Data {
-		currencies = append(currencies, v.Salary.Currency)
-	}
-	return currencies
-}
-func (r *Persons) GetSalariesValue() []int {
-	var salaries []int
-	for _, v := range r.Data {
-		salaries = append(salaries, v.Salary.Value)
-	}
-	return salaries
 }
 
 type Salary struct {
@@ -68,68 +62,6 @@ const (
 	GBP Currency = "GBP"
 	USD Currency = "USD"
 )
-
-type IPerson interface {
-	SortSalaryAsc() []Person
-	SortSalaryDesc() []Person
-	FilterSalaryInUSD() []Person
-	GroupCurrency() map[Currency][]Person
-}
-
-func Start() {
-	jsonFile, err := os.Open("persons.json")
-	if err != nil {
-		fmt.Println(err)
-		//return nil
-	}
-	defer jsonFile.Close()
-
-	byteValue, e := ioutil.ReadAll(jsonFile)
-	if e != nil {
-		fmt.Println(e)
-		//return nil
-	}
-	persons, err := UnmarshalPersons(byteValue)
-	if err != nil {
-		//return nil
-	}
-	salaryAsc := persons.SortSalaryAsc()
-	PrettyPrint(salaryAsc)
-	//return &persons
-
-}
-
-func PrettyPrint(p interface{}) {
-	pretty, err := json.MarshalIndent(p, "", "  ")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Println(string(pretty))
-
-}
-
-func (r *Persons) GetDataFromJSON() *Persons {
-	jsonFile, err := os.Open("persons.json")
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	}
-	defer jsonFile.Close()
-
-	byteValue, e := ioutil.ReadAll(jsonFile)
-	if e != nil {
-		fmt.Println(e)
-		return nil
-	}
-	persons, err := UnmarshalPersons(byteValue)
-	if err != nil {
-		return nil
-	}
-	salaryAsc := r.SortSalaryAsc()
-	fmt.Println(salaryAsc)
-	return &persons
-}
 
 func (r *Persons) SortSalaryAsc() []Person {
 	data := r.Data
@@ -171,4 +103,35 @@ func (r *Persons) GroupCurrency() map[Currency][]Person {
 		m[v.Salary.Currency] = append(m[v.Salary.Currency], v)
 	}
 	return m
+}
+
+// Extra methods
+
+func (r *Persons) GetNames() []string {
+	var names []string
+	for _, v := range r.Data {
+		names = append(names, v.PersonName)
+	}
+	return names
+}
+func (r *Persons) GetIDs() []string {
+	var ids []string
+	for _, v := range r.Data {
+		ids = append(ids, v.ID)
+	}
+	return ids
+}
+func (r *Persons) GetCurrencies() []Currency {
+	var currencies []Currency
+	for _, v := range r.Data {
+		currencies = append(currencies, v.Salary.Currency)
+	}
+	return currencies
+}
+func (r *Persons) GetSalariesValue() []int {
+	var salaries []int
+	for _, v := range r.Data {
+		salaries = append(salaries, v.Salary.Value)
+	}
+	return salaries
 }

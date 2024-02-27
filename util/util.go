@@ -36,12 +36,21 @@ func ValidateStruct(str interface{}) []*ErrorResponse {
 	return errors
 }
 
+func PrettyPrint(p interface{}) {
+	pretty, err := json.MarshalIndent(p, "", "  ")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(string(pretty))
+}
+
 type Secret struct {
 	ApiKeyOne string `json:"cadana-service-one"`
 	ApiKeyTwo string `json:"cadana-service-two"`
 }
 
-func GetSecrets() Secret {
+func GetSecret() Secret {
 	secretName := os.Getenv("SECRET_NAME")
 	region := "eu-north-1"
 
@@ -75,3 +84,25 @@ func GetSecrets() Secret {
 
 	return secret
 }
+
+//func (r *Persons) GetDataFromJSON() *Persons {
+//	jsonFile, err := os.Open("persons.json")
+//	if err != nil {
+//		fmt.Println(err)
+//		return nil
+//	}
+//	defer jsonFile.Close()
+//
+//	byteValue, e := ioutil.ReadAll(jsonFile)
+//	if e != nil {
+//		fmt.Println(e)
+//		return nil
+//	}
+//	persons, err := UnmarshalPersons(byteValue)
+//	if err != nil {
+//		return nil
+//	}
+//	salaryAsc := r.SortSalaryAsc()
+//	fmt.Println(salaryAsc)
+//	return &persons
+//}
