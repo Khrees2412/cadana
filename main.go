@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/joho/godotenv"
-	"github.com/khrees2412/cadana/taskone"
 	"github.com/khrees2412/cadana/tasktwo"
 )
 
@@ -14,6 +13,6 @@ func init() {
 }
 
 func main() {
-	taskone.Start()
+	//taskone.Start()
 	tasktwo.Start()
 }

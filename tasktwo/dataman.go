@@ -9,7 +9,7 @@ import (
 )
 
 func Start() {
-	jsonFile, err := os.Open("persons.json")
+	jsonFile, err := os.Open("tasktwo/persons.json")
 	if err != nil {
 		log.Println(err)
 	}
