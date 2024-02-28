@@ -16,7 +16,8 @@ To start the server, run the following command. A server will start at port 5001
     - GET /exchange-rate?currency_pair=USD-EUR
 
 
--
+
+*Response*
 ```json
     {
         "USD-EUR": 0.85

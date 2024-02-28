@@ -66,3 +66,25 @@ func TestExchangeRateAPIOne(t *testing.T) {
 		assert.Nil(t, rate)
 	})
 }
+
+func TestExchangeRateAPITwo(t *testing.T) {
+	key := os.Getenv("API_KEY_Two")
+	t.Run("valid api key and pair", func(t *testing.T) {
+		rate := exchangeRateAPITwo("USD-EUR", key)
+		log.Println(rate)
+		assert.NotNil(t, rate)
+		value := 0.85
+		valueType := reflect.TypeOf(value)
+		assert.Equal(t, valueType, *rate)
+	})
+
+	t.Run("invalid api key", func(t *testing.T) {
+		rate := exchangeRateAPIOne("USD-EUR", "wrong_key")
+		assert.Nil(t, rate)
+	})
+
+	t.Run("pair not found", func(t *testing.T) {
+		rate := exchangeRateAPIOne("USD-XYZ", key)
+		assert.Nil(t, rate)
+	})
+}
