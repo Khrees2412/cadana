@@ -61,7 +61,7 @@ func Start() {
 	// to sort salary in ascending order
 	salaryAsc := persons.SortSalaryAsc()
 	// to sort salary in descending order
-    salaryDesc := persons.SortSalaryAsc()
+    salaryDesc := persons.SortSalaryDesc()
     util.PrettyPrint(salaryAsc)
     util.PrettyPrint(salaryDesc)
 }
