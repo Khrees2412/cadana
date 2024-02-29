@@ -11,28 +11,26 @@ import (
 )
 
 func TestHandler(t *testing.T) {
+	// Init fiber app
+	app := fiber.New()
 
-	// Test data
 	pair := "USD-EUR"
-	//rate := 0.92
+
 	secret := Secret{
 		ApiKeyOne: os.Getenv("API_KEY_ONE"),
 		ApiKeyTwo: os.Getenv("API_KEY_TWO"),
 	}
 
-	// Mock API call
 	callCount := 0
-	exchangeRateAPI(pair, secret.ApiKeyOne, "one")
-
-	// Init fiber app
-	app := fiber.New()
 
 	// Send test request
-	req := httptest.NewRequest("GET", "/?currency_pair="+pair, nil)
+	req := httptest.NewRequest("GET", "/v1/exchange-rate?currency_pair="+pair, nil)
 	c := http.Client{}
 	c.Do(req)
 	ctx := app.AcquireCtx(&fasthttp.RequestCtx{})
 	ctx.Request().URI().SetQueryString("currency_pair=" + pair)
+
+	w := httptest.NewRecorder()
 
 	// Call handler
 	err := handler(ctx, secret)
@@ -46,4 +44,9 @@ func TestHandler(t *testing.T) {
 	assert.JSONEq(t,
 		`{"USD-EUR": 0.92}`, string(resp.Body()))
 
+	if w.Code == http.StatusOK {
+		t.Logf("Expected to get status %d is same ast %d\n", http.StatusOK, w.Code)
+	} else {
+		t.Fatalf("Expected to get status %d but instead got %d\n", http.StatusOK, w.Code)
+	}
 }

@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func Start() {
+func StartServer() {
 	app := fiber.New()
 
 	app.Get("/", func(c *fiber.Ctx) error {
