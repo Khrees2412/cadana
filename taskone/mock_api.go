@@ -1,57 +1,74 @@
 package taskone
 
 import (
-	"encoding/json"
-	"io/ioutil"
 	"log"
 	"os"
 )
 
 type Quote struct {
-	Pair string  `json:"pair"`
-	Rate float64 `json:"rate"`
+	Pair string
+	Rate float64
+}
+
+var serviceOneData = []Quote{
+	{
+		Pair: "USD-EUR",
+		Rate: 0.92,
+	},
+	{
+		Pair: "USD-GBP",
+		Rate: 0.75,
+	},
+	{
+		Pair: "EUR-GBP",
+		Rate: 0.81,
+	},
+	{
+		Pair: "USD-JPY",
+		Rate: 110.21,
+	},
+}
+
+var serviceTwoData = []Quote{
+	{
+		Pair: "USD-EUR",
+		Rate: 0.95,
+	},
+	{
+		Pair: "USD-GBP",
+		Rate: 0.77,
+	},
+	{
+		Pair: "EUR-GBP",
+		Rate: 0.90,
+	},
+	{
+		Pair: "USD-JPY",
+		Rate: 111.31,
+	},
 }
 
 func exchangeRateAPI(pair string, apiKey string, service string) *float64 {
-	var filepath string
+	var data []Quote
 	var envKey string
 
 	switch service {
 	case "one":
-		filepath = "taskone/servicea.json"
+		data = serviceOneData
 		envKey = os.Getenv("API_KEY_ONE")
 	case "two":
-		filepath = "taskone/serviceb.json"
+		data = serviceTwoData
 		envKey = os.Getenv("API_KEY_TWO")
 	default:
 		log.Fatalf("invalid service passed %v", service)
 	}
 
 	if apiKey != envKey {
-		log.Fatalf("invalid api key supplied")
-		return nil
-	}
-	jsonFile, err := os.Open(filepath)
-	if err != nil {
-		log.Fatalf("unable to open json file: %v", err)
-		return nil
-	}
-	defer jsonFile.Close()
-
-	byteValue, e := ioutil.ReadAll(jsonFile)
-	if e != nil {
-		log.Fatalf("unable to read json file: %v", e)
+		log.Println("invalid api key supplied")
 		return nil
 	}
 
-	var quotes []Quote
-	err = json.Unmarshal(byteValue, &quotes)
-	if err != nil {
-		log.Fatalf("unable to unmarshal json file: %v", err)
-		return nil
-	}
-
-	for _, v := range quotes {
+	for _, v := range data {
 		if v.Pair == pair {
 			return &v.Rate
 		}

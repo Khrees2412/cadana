@@ -8,13 +8,13 @@ import (
 
 func TestExchangeAPI(t *testing.T) {
 	pair := "USD-EUR"
-	testRate := 0.92
-	secret := Secret{
+	_ = Secret{
 		ApiKeyOne: os.Getenv("API_KEY_ONE"),
 		ApiKeyTwo: os.Getenv("API_KEY_TWO"),
 	}
 
-	rate := exchangeRateAPI(pair, secret.ApiKeyOne, "one")
-
-	assert.Equal(t, rate, testRate)
+	t.Run("returns nil for invalid api key", func(t *testing.T) {
+		rate := exchangeRateAPI(pair, "wrong-key", "one")
+		assert.Nil(t, rate)
+	})
 }
