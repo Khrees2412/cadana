@@ -63,7 +63,7 @@ func TestSortSalaryAsc(t *testing.T) {
 	persons, err := UnmarshalPersons([]byte(jsonData))
 	assert.Nil(t, err)
 
-	sortedPersons := persons.SortSalaryAsc()
+	sortedPersons := persons.SortSalary(true)
 	assert.Equal(t, int64(5000), int64(sortedPersons[0].Salary.Value))
 	assert.Equal(t, int64(6000), int64(sortedPersons[1].Salary.Value))
 }
@@ -93,7 +93,7 @@ func TestSortSalaryDesc(t *testing.T) {
 	persons, err := UnmarshalPersons([]byte(jsonData))
 	assert.Nil(t, err)
 
-	sortedPersons := persons.SortSalaryDesc()
+	sortedPersons := persons.SortSalary(false)
 	assert.Equal(t, int64(6000), int64(sortedPersons[0].Salary.Value))
 	assert.Equal(t, int64(5000), int64(sortedPersons[1].Salary.Value))
 }
