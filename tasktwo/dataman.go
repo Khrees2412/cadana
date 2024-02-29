@@ -23,7 +23,7 @@ func Start() {
 	if err != nil {
 		log.Println(err)
 	}
-	salaryAsc := persons.SortSalaryAsc()
+	salaryAsc := persons.SortSalary(false)
 	util.PrettyPrint(salaryAsc)
 }
 
@@ -63,27 +63,26 @@ const (
 	USD Currency = "USD"
 )
 
-func (r *Persons) SortSalaryAsc() []Person {
+func (r *Persons) SortSalary(asc bool) []Person {
 	data := r.Data
-	for i := 0; i < len(data); i++ {
-		for j := i + 1; j < len(data); j++ {
-			if data[i].Salary.Value > data[j].Salary.Value {
-				data[i], data[j] = data[j], data[i]
+	if !asc {
+		for i := 0; i < len(data); i++ {
+			for j := i + 1; j < len(data); j++ {
+				if data[i].Salary.Value < data[j].Salary.Value {
+					data[i], data[j] = data[j], data[i]
+				}
+			}
+		}
+	} else {
+		for i := 0; i < len(data); i++ {
+			for j := i + 1; j < len(data); j++ {
+				if data[i].Salary.Value > data[j].Salary.Value {
+					data[i], data[j] = data[j], data[i]
+				}
 			}
 		}
 	}
-	return data
-}
 
-func (r *Persons) SortSalaryDesc() []Person {
-	data := r.Data
-	for i := 0; i < len(data); i++ {
-		for j := i + 1; j < len(data); j++ {
-			if data[i].Salary.Value < data[j].Salary.Value {
-				data[i], data[j] = data[j], data[i]
-			}
-		}
-	}
 	return data
 }
 
